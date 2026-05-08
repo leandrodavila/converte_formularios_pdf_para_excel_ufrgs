@@ -1,0 +1,47 @@
+sap:
+  model_name: "anthropic--claude-4.5-sonnet"
+  auth_method: "env"
+  max_tokens: 2000
+  temperature: 0
+
+extraction:
+  retry_attempts: 3
+  retry_delay_seconds: 2
+  backoff_multiplier: 2
+  rate_limit_delay: 1
+
+output:
+  directory: "output"
+  excel_filename: "resultados_ancestralidades_sap.xlsx"
+  log_filename: "extraction.log"
+
+form_fields:
+  - codigo_participante
+  - data_coleta
+  - nome_completo
+
+field_headers:
+  quilombo: "Quilombo"
+  arquivo: "Arquivo"
+  codigo_participante: "Código Participante"
+  data_coleta: "Data Coleta"
+  nome_completo: "Nome Completo"
+
+column_widths:
+  quilombo: 20
+  arquivo: 15
+  nome_completo: 30
+  default: 18
+
+system_prompt: |
+  Você é um extrator de dados de formulários manuscritos de pesquisa.
+  Extraia EXATAMENTE os campos abaixo do formulário e retorne APENAS um JSON válido,
+  sem markdown, sem texto adicional.
+
+  Campos obrigatórios:
+  {fields_json}
+
+  Regras:
+  - Para campos de múltipla escolha, liste os itens marcados separados por " | "
+  - Se o campo estiver em branco ou ilegível, use ""
+  - Retorne SOMENTE o JSON, nada mais
