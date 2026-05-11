@@ -1,0 +1,72 @@
+# Medical Intake Form Configuration
+# Example configuration for medical clinic intake forms
+
+sap:
+  model_name: "anthropic--claude-4.5-sonnet"
+  auth_method: "env"
+  max_tokens: 2000
+  temperature: 0
+
+extraction:
+  retry_attempts: 3
+  retry_delay_seconds: 2
+  backoff_multiplier: 2
+  rate_limit_delay: 1
+
+output:
+  directory: "output"
+  excel_filename: "results_medical_intake.xlsx"
+  log_filename: "extraction.log"
+
+form_fields:
+  - patient_id
+  - visit_date
+  - chief_complaint
+  - symptoms
+  - allergies
+  - current_medications
+  - blood_pressure
+  - temperature
+  - clinical_notes
+
+field_headers:
+  quilombo: "Clinic"
+  arquivo: "Form File"
+  patient_id: "Patient ID"
+  visit_date: "Visit Date"
+  chief_complaint: "Chief Complaint"
+  symptoms: "Symptoms"
+  allergies: "Known Allergies"
+  current_medications: "Current Medications"
+  blood_pressure: "BP (mmHg)"
+  temperature: "Temp (°C)"
+  clinical_notes: "Clinical Notes"
+
+column_widths:
+  quilombo: 20
+  arquivo: 15
+  chief_complaint: 35
+  symptoms: 40
+  allergies: 30
+  current_medications: 45
+  clinical_notes: 50
+  default: 18
+
+system_prompt: |
+  You are extracting data from medical clinic intake forms.
+  Extract EXACTLY the fields below from the form and return ONLY valid JSON.
+
+  Do not include markdown formatting, explanatory text, or any other content.
+
+  Required fields:
+  {fields_json}
+
+  Extraction rules:
+  - For chief_complaint and symptoms, extract the complete text
+  - For allergies, list all mentioned allergies separated by " | "
+  - For current_medications, list medication names separated by " | "
+  - For blood_pressure, format as "systolic/diastolic" (e.g., "120/80")
+  - For temperature, extract the number only (e.g., "37.2")
+  - For dates, use the format shown in the form
+  - If a field is blank or not applicable, use ""
+  - Return ONLY the JSON object, nothing else
