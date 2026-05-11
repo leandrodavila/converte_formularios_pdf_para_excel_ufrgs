@@ -44,10 +44,19 @@ def test_retry_logic_on_failure():
 
     # Create a mock client that fails twice then succeeds
     with patch("src.sap_client.BedrockSAPClient") as mock_bedrock_class:
-        mock_client = Mock()
-        mock_client.config = sap_cfg
-        mock_client.extraction_config = extraction_cfg
+        # Create a real SAPClient instance with mocked call_model
+        from src.sap_client import SAPClient
 
+        # We need to mock BedrockSAPClient but keep the retry logic from SAPClient
+        # So we'll create a concrete test client
+        class TestSAPClient(SAPClient):
+            def call_model(self, system_prompt, user_message, pdf_bytes, pdf_name):
+                # This will be mocked
+                pass
+
+        client = TestSAPClient(sap_cfg, extraction_cfg)
+
+        # Mock the call_model method to fail twice then succeed
         call_count = 0
         def side_effect(*args, **kwargs):
             nonlocal call_count
@@ -56,12 +65,32 @@ def test_retry_logic_on_failure():
                 raise Exception("API Error")
             return "success response"
 
-        mock_client.call_model.side_effect = side_effect
-        mock_bedrock_class.return_value = mock_client
+        client.call_model = Mock(side_effect=side_effect)
 
-        from src.sap_client import SAPClient
-        # Inject retry logic manually since we're mocking
-        client = mock_bedrock_class(sap_cfg, extraction_cfg)
+        # Test parameters
+        test_system_prompt = "test system"
+        test_user_message = "test message"
+        test_pdf_bytes = b"test pdf"
+        test_pdf_name = "test.pdf"
 
-        # This test verifies retry behavior exists (implementation will add retry wrapper)
-        assert client is not None
+        # Call with retry and verify it succeeds after 3 attempts
+        result = client.call_with_retry(
+            test_system_prompt,
+            test_user_message,
+            test_pdf_bytes,
+            test_pdf_name
+        )
+
+        # Verify the result is correct
+        assert result == "success response"
+
+        # Verify call_model was called 3 times (2 failures + 1 success)
+        assert client.call_model.call_count == 3
+
+        # Verify all calls had the correct parameters
+        client.call_model.assert_called_with(
+            test_system_prompt,
+            test_user_message,
+            test_pdf_bytes,
+            test_pdf_name
+        )
