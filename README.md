@@ -103,15 +103,26 @@ output:
 ### Basic Usage
 
 Process all PDFs in a folder:
+
+**Linux/Mac:**
 ```bash
 python -m src.main path/to/pdfs
+```
+
+**Windows:**
+```bash
+python -m src.main C:\Users\YourName\Documents\pdfs
 ```
 
 ### Advanced Options
 
 **Specify quilombo name** (overrides folder name):
 ```bash
+# Linux/Mac
 python -m src.main path/to/pdfs --quilombo "Quilombo_Morro_Alto"
+
+# Windows
+python -m src.main C:\Users\YourName\Documents\pdfs --quilombo "Quilombo_Morro_Alto"
 ```
 
 **Use custom configuration file**:
@@ -124,9 +135,9 @@ python -m src.main path/to/pdfs --config custom_config.yaml
 python -m src.main path/to/pdfs --verbose
 ```
 
-**Combine options**:
+**Combine options (Windows example)**:
 ```bash
-python -m src.main data/quilombo_a --quilombo "Comunidade_A" --verbose
+python -m src.main C:\data\quilombo_a --quilombo "Comunidade_A" --verbose
 ```
 
 ### Output
