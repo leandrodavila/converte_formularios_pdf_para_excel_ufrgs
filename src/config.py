@@ -150,7 +150,7 @@ def load_config(path: Path = Path("config.yaml")) -> Config:
         falls back to 'configs/ancestralidades.yaml' for backward compatibility.
     """
     # Windows compatibility: fallback to actual config file if symlink doesn't exist
-    if not path.exists() and path.name == "config.yaml":
+    if not path.exists() and path == Path("config.yaml"):
         fallback = Path("configs/ancestralidades.yaml")
         if fallback.exists():
             path = fallback
