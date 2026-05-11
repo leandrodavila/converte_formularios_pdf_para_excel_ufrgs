@@ -2,7 +2,6 @@ import base64
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from src.config import SAPConfig, ExtractionConfig
 
