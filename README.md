@@ -98,6 +98,48 @@ output:
 - `column_widths`: Custom column widths for readability
 - `system_prompt`: Extraction prompt template
 
+### 3. Working with Multiple Form Types
+
+The application supports multiple PDF form types through separate configuration files in the `configs/` directory.
+
+**Using different form types:**
+
+```bash
+# Use default form type (ancestralidades)
+python -m src.main path/to/pdfs
+
+# Use medical intake forms
+python -m src.main path/to/pdfs --config configs/example-medical.yaml
+
+# Use custom form configuration
+python -m src.main path/to/pdfs --config configs/my-custom-form.yaml
+```
+
+**Available configurations:**
+- `configs/ancestralidades.yaml` - Ancestralidades research forms (40 fields) [DEFAULT]
+- `configs/example-medical.yaml` - Medical clinic intake forms (9 fields)
+- `configs/template.yaml` - Template for creating new form types
+
+**Creating a new form type:**
+
+1. Copy the template:
+   ```bash
+   cp configs/template.yaml configs/my-form.yaml
+   ```
+
+2. Edit `configs/my-form.yaml`:
+   - Define your `form_fields`
+   - Map fields to `field_headers`
+   - Customize `system_prompt`
+   - Update `excel_filename`
+
+3. Test with sample PDFs:
+   ```bash
+   python -m src.main samples/ --config configs/my-form.yaml --verbose
+   ```
+
+See `configs/README.md` for detailed instructions on creating new configurations.
+
 ## Usage
 
 ### Basic Usage
@@ -127,7 +169,11 @@ python -m src.main C:\Users\YourName\Documents\pdfs --quilombo "Quilombo_Morro_A
 
 **Use custom configuration file**:
 ```bash
-python -m src.main path/to/pdfs --config custom_config.yaml
+# Linux/Mac
+python -m src.main path/to/pdfs --config configs/medical-intake.yaml
+
+# Windows
+python -m src.main C:\Users\YourName\Documents\pdfs --config configs\example-medical.yaml
 ```
 
 **Enable verbose logging**:
