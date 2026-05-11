@@ -146,7 +146,15 @@ def load_config(path: Path = Path("config.yaml")) -> Config:
 
     Note:
         The 'column_widths' field is optional and defaults to an empty dict if not provided.
+        On Windows, if the default 'config.yaml' symlink doesn't exist (due to permission issues),
+        falls back to 'configs/ancestralidades.yaml' for backward compatibility.
     """
+    # Windows compatibility: fallback to actual config file if symlink doesn't exist
+    if not path.exists() and path.name == "config.yaml":
+        fallback = Path("configs/ancestralidades.yaml")
+        if fallback.exists():
+            path = fallback
+
     if not path.exists():
         raise FileNotFoundError(f"Configuration file not found: {path}")
 
