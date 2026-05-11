@@ -1,0 +1,109 @@
+# ============================================================================
+# PDF Form Extractor - Configuration Template
+# ============================================================================
+#
+# Copy this file to create a new form type configuration:
+#   cp configs/template.yaml configs/my-form-type.yaml
+#
+# Then customize the sections below for your specific form.
+#
+
+# ----------------------------------------------------------------------------
+# SAP AI Hub Configuration
+# ----------------------------------------------------------------------------
+sap:
+  model_name: "anthropic--claude-4.5-sonnet"
+  auth_method: "env"  # "env" uses ANTHROPIC_API_KEY env var, "config" uses api_key below
+  # api_key: "your-key-here"  # Only needed if auth_method: "config"
+  max_tokens: 2000    # Increase if forms are very complex (max 4096)
+  temperature: 0      # Keep at 0 for consistent extraction
+
+# ----------------------------------------------------------------------------
+# Extraction Behavior
+# ----------------------------------------------------------------------------
+extraction:
+  retry_attempts: 3              # Number of retries on API failures
+  retry_delay_seconds: 2         # Initial delay between retries
+  backoff_multiplier: 2          # Exponential backoff multiplier (2 = 2s, 4s, 8s)
+  rate_limit_delay: 1            # Delay between successful requests (avoid rate limits)
+
+# ----------------------------------------------------------------------------
+# Output Configuration
+# ----------------------------------------------------------------------------
+output:
+  directory: "output"                    # Base output directory
+  excel_filename: "results_my_form.xlsx" # CHANGE THIS for your form type
+  log_filename: "extraction.log"
+
+# ----------------------------------------------------------------------------
+# Form Field Definitions
+# ----------------------------------------------------------------------------
+# Define ALL fields you want to extract from the PDF.
+# Use snake_case for field names (e.g., patient_id, blood_pressure)
+#
+# NOTE: 'quilombo' and 'arquivo' are automatically added as the first two columns.
+#
+form_fields:
+  - field_name_1
+  - field_name_2
+  - field_name_3
+  - field_name_4
+  - field_name_5
+  # Add more fields as needed
+
+# ----------------------------------------------------------------------------
+# Excel Column Headers
+# ----------------------------------------------------------------------------
+# Map each field to a human-readable Excel column header.
+#
+# REQUIRED: Always include quilombo and arquivo mappings
+# REQUIRED: Include all fields from form_fields above
+#
+field_headers:
+  quilombo: "Source Location"     # Column name for quilombo/clinic/site
+  arquivo: "PDF Filename"          # Column name for source file
+  field_name_1: "Display Name 1"
+  field_name_2: "Display Name 2"
+  field_name_3: "Display Name 3"
+  field_name_4: "Display Name 4"
+  field_name_5: "Display Name 5"
+  # Add headers for all fields
+
+# ----------------------------------------------------------------------------
+# Excel Column Widths (Optional)
+# ----------------------------------------------------------------------------
+# Set custom widths for columns with long content.
+# Units are approximate character widths in Excel.
+#
+# Fields not listed here use the 'default' width.
+#
+column_widths:
+  quilombo: 20
+  arquivo: 15
+  field_name_1: 30    # Example: wider column for long text
+  field_name_3: 40    # Example: even wider for very long text
+  default: 18         # Default width for all other columns
+
+# ----------------------------------------------------------------------------
+# Extraction System Prompt
+# ----------------------------------------------------------------------------
+# Customize this prompt for your specific form type.
+#
+# REQUIRED: Include {fields_json} placeholder - it will be replaced with the field schema
+# IMPORTANT: Emphasize "return ONLY JSON" to avoid markdown wrappers
+#
+system_prompt: |
+  You are extracting data from [DESCRIBE YOUR FORM TYPE HERE] forms.
+  Extract EXACTLY the fields listed below from the form and return ONLY valid JSON.
+
+  Do not include markdown formatting, explanatory text, or any content other than the JSON object.
+
+  Required fields:
+  {fields_json}
+
+  Extraction rules:
+  - For checkbox fields with multiple selections, list items separated by " | "
+  - For date fields, preserve the format shown in the form
+  - For numeric fields, extract only the number without units
+  - If a field is blank, illegible, or not applicable, use an empty string ""
+  - Return ONLY the JSON object, nothing else
